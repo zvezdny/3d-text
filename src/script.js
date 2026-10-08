@@ -4,7 +4,11 @@ import GUI from 'lil-gui'
 import { TTFLoader } from 'three/addons/loaders/TTFLoader.js';
 import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-const axesHelper = new THREE.AxesHelper( 5 );
+const axesHelper = new THREE.AxesHelper(5);
+const gui = new GUI();
+const debugObject = {
+  count: 100
+}
 
 
 
@@ -59,7 +63,7 @@ textGeometry.center()
  * Base
  */
 // Debug
-const gui = new GUI()
+// const gui = new GUI()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -81,11 +85,11 @@ const scene = new THREE.Scene()
  * Textures
  */
 const textureLoader = new THREE.TextureLoader()
-const matcapTexute = textureLoader.load('/textures/matcaps/7.png')
-matcapTexute.colorSpace = THREE.SRGBColorSpace
+const matcapTexture = textureLoader.load('/textures/matcaps/7.png')
+matcapTexture.colorSpace = THREE.SRGBColorSpace
 
-const material = new THREE.MeshNormalMaterial()
-material.map = matcapTexute
+const material = new THREE.MeshMatcapMaterial()
+material.map = matcapTexture
 /**
  * Object
  */
@@ -96,7 +100,46 @@ const cube = new THREE.Mesh(
 
 scene.add(cube)
 // cube.position.set(-2, 0, 0);
-scene.add( axesHelper );
+// scene.add(axesHelper);
+
+const count = 100
+const spread = 5
+
+
+
+gui.add(debugObject, 'count' , 10 , 1000 , 1).onChange(() => {
+    buildDonut()
+  })
+
+
+let donut = null
+
+function buildDonut() {
+  if (donut) {
+    donut.donutGeometry.dispose()
+    scene.remove(donut)
+  }
+  const donutGeometry = new THREE.TorusGeometry(0.1, 0.08, 20, 45)
+  const donutMaterial = new THREE.MeshMatcapMaterial({ map: matcapTexture })
+  for (let i = 0; i < debugObject.count; i++) {
+
+    const donut = new THREE.Mesh(donutGeometry, donutMaterial)
+    scene.add(donut)
+
+    donut.position.x = (Math.random() - 0.5) * spread
+    donut.position.y = (Math.random() - 0.5) * spread
+    donut.position.z = (Math.random() - 0.5) * spread
+
+    donut.rotation.x = Math.random() * Math.PI
+    donut.rotation.y = Math.random() * Math.PI
+
+    const scale = Math.random()
+    donut.scale.set(scale, scale, scale)
+
+  }
+}
+buildDonut()
+
 
 /**
  * Sizes
